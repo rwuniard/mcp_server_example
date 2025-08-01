@@ -33,6 +33,13 @@ class McpToolsTests {
     void testSubtractNumbers() {
         assertEquals(-1.0, mathService.subtractNumbers(2.0, 3.0));
     }
+    @Test
+    void testMathOperations_EdgeCases() {
+     assertEquals(0.0, mathService.subtractNumbers(5.0, 5.0)); // Same numbers
+        assertEquals(Double.POSITIVE_INFINITY, mathService.multiplyNumbers(Double.MAX_VALUE, 2.0)); // Overflow
+        assertTrue(Double.isNaN(mathService.addNumbers(Double.NaN, 1.0))); // NaN handling
+    }
+
 
     // WeatherService Tests
 
