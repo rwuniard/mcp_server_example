@@ -40,9 +40,31 @@ cd mcp_server
 - **Spring Boot Test**: Testing framework with JUnit 5
 
 ### Configuration
-- **Application properties**: `src/main/resources/application.properties` contains MCP server configuration including SSE endpoints
-- **SSE Endpoint**: `/sse` - Main MCP connection endpoint
+- **Application configuration**: `src/main/resources/application.yml` contains MCP server configuration following Spring AI documentation format
+- **SSE Endpoint**: `/sse` - Main MCP connection endpoint  
 - **Message Endpoint**: `/mcp/messages` - Internal MCP messaging
+- **Configuration format**: YAML format aligned with official Spring AI documentation
+
+#### Sample Configuration
+```yaml
+spring:
+  application:
+    name: mcp_server
+  ai:
+    mcp:
+      server:
+        name: mcp_server
+        version: 1.0.0
+        type: SYNC
+        instructions: "Spring Boot MCP server providing mathematical operations and weather information tools"
+        sse-endpoint: /sse
+        sse-message-endpoint: /mcp/messages
+        capabilities:
+          tool: true
+          resource: true
+          prompt: true
+          completion: true
+```
 
 ## MCP Tools
 
@@ -151,6 +173,53 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 ```
 
+## Configuration Property Discovery
+
+Spring AI MCP server properties can be discovered through several methods:
+
+### 1. Official Documentation
+Spring AI documentation provides YAML configuration examples at:
+https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html
+
+### 2. IDE Autocomplete
+Modern IDEs (IntelliJ IDEA, VS Code) provide autocomplete for Spring configuration properties:
+- Type `spring.ai.mcp.server.` in YAML files
+- IDE shows available properties with descriptions and default values
+- Real-time validation and error highlighting
+
+### 3. Spring Configuration Metadata
+Spring Boot generates metadata for all configuration properties:
+```bash
+# Extract metadata from Spring AI MCP JAR
+jar -tf ~/.m2/repository/org/springframework/ai/spring-ai-autoconfigure-mcp-server/1.0.0/spring-ai-autoconfigure-mcp-server-1.0.0.jar | grep metadata
+# Look for: META-INF/spring-configuration-metadata.json
+```
+
+### 4. Runtime Inspection (Development)
+Add Spring Boot Actuator to inspect configuration at runtime:
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+Then visit: `http://localhost:8080/actuator/configprops`
+
+### 5. Property Override Methods
+Configuration can be overridden via multiple methods (in precedence order):
+```bash
+# Command line arguments (highest priority)
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.ai.mcp.server.name=custom"
+
+# Environment variables
+SPRING_AI_MCP_SERVER_NAME=custom ./mvnw spring-boot:run
+
+# Profile-specific files
+# application-dev.yml, application-prod.yml
+
+# Default application.yml (lowest priority)
+```
+
 ## Project Structure
 
 ```
@@ -158,6 +227,9 @@ src/main/java/com/rw/mcp_server/
 ├── McpServerApplication.java    # Main application with tool registrations
 ├── MathService.java            # Mathematical operations (add, multiply)  
 └── WeatherService.java         # Weather information tools
+
+src/main/resources/
+└── application.yml             # MCP server configuration (YAML format)
 ```
 
 ## Extending the Server
