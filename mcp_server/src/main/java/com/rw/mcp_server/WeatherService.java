@@ -24,8 +24,6 @@ public class WeatherService {
                 "Weather in Toronto: 45°F (7°C), Snow, Humidity: 85%, Wind: 20 mph N";
             case "los angeles", "la" -> 
                 "Weather in Los Angeles: 70°F (21°C), Sunny, Humidity: 60%, Wind: 10 mph E";
-            case "san francisco", "sf" ->
-                "Weather in San Francisco: 60°F (16°C), Overcast, Humidity: 70%, Wind: 15 mph NW";
             default -> 
                 String.format("Weather data for %s: 70°F (21°C), Partly Cloudy, Humidity: 60%%, Wind: 10 mph", cityName);
         };
