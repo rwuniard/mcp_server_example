@@ -46,7 +46,7 @@ cd mcp_server
 
 ## MCP Tools
 
-The server includes a MathService with properly configured MCP tools:
+The server includes multiple services with properly configured MCP tools:
 
 ### Creating MCP Tools
 1. **Annotate methods** with `@Tool` annotation:
@@ -67,10 +67,32 @@ The server includes a MathService with properly configured MCP tools:
    }
    ```
 
-### Available Tools
-- **Tool**: `addNumbers(double number1, double number2)`
-- **Description**: Adds two numbers and returns the result
-- **Location**: `src/main/java/com/rw/mcp_server/MathService.java`
+### Available Services & Tools
+
+#### MathService (`src/main/java/com/rw/mcp_server/MathService.java`)
+- **`addNumbers(double number1, double number2)`**: Adds two numbers and returns the result
+- **`multiplyNumbers(double number1, double number2)`**: Multiplies two numbers and returns the result
+
+#### WeatherService (`src/main/java/com/rw/mcp_server/WeatherService.java`)
+- **`getWeather(String cityName)`**: Get current weather information for a city
+  - Supports major cities: New York, London, Tokyo, Paris, Sydney, Toronto
+  - Returns temperature, conditions, humidity, and wind information
+- **`getWeatherForecast(String cityName, int days)`**: Get weather forecast for multiple days (1-7 days)
+  - Returns detailed daily forecast with temperature and conditions
+
+### Tool Usage Examples
+
+**Math Operations:**
+```
+addNumbers: number1=5.0, number2=3.0 → Result: 8.0
+multiplyNumbers: number1=4.0, number2=6.0 → Result: 24.0
+```
+
+**Weather Information:**
+```
+getWeather: cityName="New York" → "Weather in New York: 72°F (22°C), Partly Cloudy, Humidity: 65%, Wind: 8 mph NW"
+getWeatherForecast: cityName="London", days=3 → Multi-day forecast with daily breakdown
+```
 
 ## Testing the MCP Server
 
@@ -107,7 +129,10 @@ npx @modelcontextprotocol/inspector@latest
 - The project uses Maven wrapper (`mvnw`) for build consistency
 - Java 21 is required for this project
 - Spring AI MCP Server starter provides auto-configuration for MCP protocol endpoints
-- Tool registration is confirmed in startup logs: "Registered tools: 1"
+- Tool registration is confirmed in startup logs: "Registered tools: 4"
+- Each service requires its own `ToolCallbackProvider` bean registration
+- Multiple services can be combined in a single MCP server
+- Weather data is simulated (in production, integrate with real weather APIs)
 
 ## Required Dependencies
 
@@ -124,4 +149,32 @@ npx @modelcontextprotocol/inspector@latest
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
+```
+
+## Project Structure
+
+```
+src/main/java/com/rw/mcp_server/
+├── McpServerApplication.java    # Main application with tool registrations
+├── MathService.java            # Mathematical operations (add, multiply)  
+└── WeatherService.java         # Weather information tools
+```
+
+## Extending the Server
+
+To add new MCP tools:
+
+1. **Create a new service class** with `@Service` annotation
+2. **Add tool methods** with `@Tool` annotations and descriptions
+3. **Register the service** by adding a `ToolCallbackProvider` bean in `McpServerApplication`
+4. **Test** - the new tools will automatically appear in MCP Inspector
+
+Example of adding a new service:
+```java
+@Bean
+public ToolCallbackProvider newServiceTools(NewService newService) {
+    return MethodToolCallbackProvider.builder()
+        .toolObjects(newService)
+        .build();
+}
 ```

@@ -10,4 +10,9 @@ public class MathService {
     public double addNumbers(double number1, double number2) {
         return number1 + number2;
     }
+    
+    @Tool(description = "Multiply two numbers and return the result")
+    public double multiplyNumbers(double number1, double number2) {
+        return number1 * number2;
+    }
 }

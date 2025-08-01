@@ -19,4 +19,11 @@ public class McpServerApplication {
 			.toolObjects(mathService)
 			.build();
 	}
+	
+	@Bean
+	public ToolCallbackProvider weatherTools(WeatherService weatherService) {
+		return MethodToolCallbackProvider.builder()
+			.toolObjects(weatherService)
+			.build();
+	}
 }
