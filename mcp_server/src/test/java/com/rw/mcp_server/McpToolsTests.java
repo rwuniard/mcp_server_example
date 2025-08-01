@@ -33,6 +33,7 @@ class McpToolsTests {
     void testSubtractNumbers() {
         assertEquals(-1.0, mathService.subtractNumbers(2.0, 3.0));
     }
+    
     @Test
     void testMathOperations_EdgeCases() {
      assertEquals(0.0, mathService.subtractNumbers(5.0, 5.0)); // Same numbers
