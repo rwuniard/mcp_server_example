@@ -15,4 +15,9 @@ public class MathService {
     public double multiplyNumbers(double number1, double number2) {
         return number1 * number2;
     }
+
+    @Tool(description = "Subtract two numbers and return the result")
+    public double subtractNumbers(double number1, double number2) {
+        return number1 - number2;
+    }
 }
