@@ -27,6 +27,86 @@ cd mcp_server
 ./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev"  # Run with dev profile
 ```
 
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and deployment. The pipeline is defined in `.github/workflows/ci.yml`.
+
+### Pipeline Overview
+
+The CI/CD pipeline consists of two main jobs that run automatically on code changes:
+
+#### 1. Test Job
+**Triggers**: Runs on every push to `main` or `develop` branches, and on all pull requests to `main`
+
+**Steps**:
+1. **Checkout code** - Fetches the repository with full history (`fetch-depth: 0`)
+2. **Set up JDK 21** - Configures Temurin OpenJDK 21 distribution
+3. **Cache Maven dependencies** - Caches `~/.m2` directory using pom.xml hash for faster builds
+4. **Build with Maven** - Runs `./mvnw clean compile` in the `mcp_server` directory
+5. **Run tests** - Executes `./mvnw test` to run all unit tests
+6. **Package application** - Creates JAR file with `./mvnw package -DskipTests`
+
+#### 2. Build Job
+**Triggers**: Runs only on successful test completion and only for `main` branch pushes
+
+**Dependencies**: Requires the `test` job to complete successfully
+
+**Steps**:
+1. **Checkout code** - Fresh checkout of the repository
+2. **Set up JDK 21** - Configures Java environment
+3. **Build and package** - Runs full build with `./mvnw clean package`
+4. **Upload build artifacts** - Stores the generated JAR file as a GitHub Actions artifact named `mcp-server-jar`
+
+### Pipeline Features
+
+- **Branch Protection**: Build job only runs for main branch deployments
+- **Dependency Management**: Maven dependency caching reduces build times
+- **Artifact Storage**: JAR files are preserved as downloadable artifacts
+- **Full History Access**: Complete git history available for version tagging or release notes
+- **Multi-Environment Support**: Separate triggers for main/develop branches and pull requests
+
+### Pipeline Configuration
+
+```yaml
+# Trigger conditions
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+# Job dependencies
+jobs:
+  test:
+    runs-on: ubuntu-latest
+  build:
+    needs: test  # Only runs after test job succeeds
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'  # Only on main branch
+```
+
+### Local Pipeline Testing
+
+To test the same steps locally:
+
+```bash
+# Replicate the test job
+cd mcp_server
+./mvnw clean compile  # Build step
+./mvnw test          # Test step
+./mvnw package -DskipTests  # Package step
+
+# Replicate the build job
+./mvnw clean package  # Full build with tests
+```
+
+### Pipeline Status
+
+- **✅ Success**: All tests pass, application builds successfully, artifacts uploaded
+- **❌ Failure**: Build fails, tests fail, or packaging errors occur
+- **⏳ In Progress**: Pipeline is currently running
+- **⏸️ Skipped**: Build job skipped (not on main branch or test job failed)
+
 ## Architecture
 
 ### Project Structure
