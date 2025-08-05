@@ -20,4 +20,12 @@ public class MathService {
     public double subtractNumbers(double number1, double number2) {
         return number1 - number2;
     }
+
+    @Tool(description = "Calculate the modulo (remainder) of two numbers")
+    public double moduloNumbers(double number1, double number2) {
+        if (number2 == 0) {
+            throw new IllegalArgumentException("Cannot calculate modulo with divisor zero");
+        }
+        return number1 % number2;
+    }
 }
