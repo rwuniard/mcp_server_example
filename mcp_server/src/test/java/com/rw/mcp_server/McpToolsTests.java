@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class McpToolsTests {
@@ -32,6 +33,37 @@ class McpToolsTests {
     @Test
     void testSubtractNumbers() {
         assertEquals(-1.0, mathService.subtractNumbers(2.0, 3.0));
+    }
+
+    @Test
+    void testModuloNumbers() {
+        assertEquals(1.0, mathService.moduloNumbers(7.0, 3.0)); // 7 % 3 = 1
+        assertEquals(0.0, mathService.moduloNumbers(6.0, 3.0)); // 6 % 3 = 0
+        assertEquals(2.5, mathService.moduloNumbers(5.5, 3.0)); // 5.5 % 3 = 2.5
+        assertEquals(-1.0, mathService.moduloNumbers(-7.0, 3.0)); // -7 % 3 = -1
+        assertEquals(1.0, mathService.moduloNumbers(7.0, -3.0)); // 7 % -3 = 1
+    }
+
+    @Test
+    void testModuloNumbers_DivisionByZero() {
+        assertThrows(IllegalArgumentException.class, 
+            () -> mathService.moduloNumbers(5.0, 0.0));
+        assertThrows(IllegalArgumentException.class, 
+            () -> mathService.moduloNumbers(-5.0, 0.0));
+    }
+    
+    @Test
+    void testModuloNumbers_EdgeCases() {
+        // NaN handling
+        assertTrue(Double.isNaN(mathService.moduloNumbers(Double.NaN, 3.0)));
+        assertTrue(Double.isNaN(mathService.moduloNumbers(5.0, Double.NaN)));
+        assertTrue(Double.isNaN(mathService.moduloNumbers(Double.NaN, Double.NaN)));
+        
+        // Infinity handling
+        assertTrue(Double.isNaN(mathService.moduloNumbers(5.0, Double.POSITIVE_INFINITY)));
+        assertTrue(Double.isNaN(mathService.moduloNumbers(5.0, Double.NEGATIVE_INFINITY)));
+        assertTrue(Double.isNaN(mathService.moduloNumbers(Double.POSITIVE_INFINITY, 3.0)));
+        assertTrue(Double.isNaN(mathService.moduloNumbers(Double.NEGATIVE_INFINITY, 3.0)));
     }
     
     @Test
